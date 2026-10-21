@@ -206,6 +206,12 @@ class TaskPageController extends _$TaskPageController
     task.done = true;
     var response = await ref.read(taskRepositoryProvider).update(task);
     if (response.isSuccessful) {
+      // Clear this task's due-date notification after completion.
+      final notificationHandler = ref.read(notificationProvider);
+      if (notificationHandler != null) {
+        await notificationHandler.notificationsPlugin.cancel(id: task.id);
+      }
+
       var value = state.value;
       if (value != null) {
         var tasks = value.tasks;

@@ -234,9 +234,12 @@ class NotificationHandler {
       },
     );
 
-    if (taskResponse.isSuccessful) {
-      await notificationsPlugin.cancelAll();
-      for (final task in taskResponse.toSuccess().body) {
+if (taskResponse.isSuccessful) {
+  // Only cancel notifications that haven't fired yet.
+  // Preserve reminders already visible in Android's notification shade.
+  await notificationsPlugin.cancelAllPendingNotifications();
+
+  for (final task in taskResponse.toSuccess().body) {
         if (task.done) continue;
         for (final reminder in task.reminderDates) {
           await scheduleNotification(
